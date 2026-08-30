@@ -1,6 +1,6 @@
 from decimal import Decimal
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import sqlalchemy.dialects.postgresql as pg
 from enum import Enum
 from sqlmodel import Column, Field, SQLModel
@@ -23,9 +23,9 @@ class UserModel(SQLModel, table= True):
         unique=True,
         index=True,
     )
-)
-    password_hash: str = Field(exclude=True)
-    is_admin: bool = Field(default=False)
+)   
+    dob: date = Field(sa_column=Column(pg.DATE, nullable=False))
+    is_admin: bool = Field(default=False, sa_column=Column(pg.BOOLEAN, nullable=False, default=False))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column=Column(pg.TIMESTAMP(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)))
 
 class AccountModel(SQLModel, table= True):
