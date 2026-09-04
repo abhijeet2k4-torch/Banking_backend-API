@@ -12,6 +12,10 @@ user_service = UserService()
 async def get_users(session: AsyncSession=Depends(get_session)):
     return await user_service.get_all_users(session)
 
+@router.get('/search',response_model=list[UserModel], responses={status.HTTP_200_OK: {"description": "Users returned"}, status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized"}, status.HTTP_403_FORBIDDEN: {"description": "Invalid or expired token"}})
+async def search_users(keys: str, session: AsyncSession=Depends(get_session)):
+    return await user_service.search_users(keys, session)
+
 @router.get('/{user_id}',response_model=UserModel, responses={status.HTTP_200_OK: {"description": "User returned"}, status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized"}, status.HTTP_403_FORBIDDEN: {"description": "Invalid or expired token"}})
 async def get_user(user_id: UUID, session: AsyncSession=Depends(get_session)):
     return await user_service.get_user_by_id(str(user_id), session)
