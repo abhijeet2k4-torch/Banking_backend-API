@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from .schemas import PatchUserModel
-from sqlmodel import select, desc
+from sqlmodel import select, desc, or_
 from src.db.models import UserModel as UserTable
 
 class UserService:
@@ -33,3 +33,23 @@ class UserService:
         await session.delete(user_to_delete)
         await session.commit()
         return user_to_delete
+
+    async def search_users(self, keys:str, session:AsyncSession):
+        keys = keys.strip()
+
+        if not keys:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Search keyword cannot be empty"
+        )
+        query = select(UserTable).where(
+            or_(
+                UserTable.name.ilike(f"%{keys}%"),
+                UserTable.email.ilike(f"%{keys}%")
+            )
+        )
+        result = await session.exec(query)
+        users = result.all()
+        if not users:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Users not found")
+        return users
