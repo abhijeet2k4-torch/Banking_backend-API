@@ -8,7 +8,7 @@ class AccountModel(BaseModel):
     account_number: str
     user_id: uuid.UUID
     created_at: datetime 
-    status: str = "active"
+    status: StatusType
     balance: Decimal 
 
 class AccountStatusUpdateModel(BaseModel):
