@@ -28,6 +28,12 @@ class UserModel(SQLModel, table= True):
     is_admin: bool = Field(default=False, sa_column=Column(pg.BOOLEAN, nullable=False, default=False))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column=Column(pg.TIMESTAMP(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)))
 
+class StatusType(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    FROZEN = "frozen" 
+    CLOSED = "closed"
+
 class AccountModel(SQLModel, table= True):
     __tablename__= 'accounts'
     account_id: uuid.UUID = Field(
@@ -46,9 +52,10 @@ class AccountModel(SQLModel, table= True):
                 index=True,
             )
         )
-    user_id: uuid.UUID = Field(foreign_key="users.user_id",nullable=False)
+    user_id: uuid.UUID = Field(foreign_key="users.user_id",nullable=False, unique=False, index=True)
     balance: Decimal = Field(default=Decimal("0.00"), sa_column=Column(pg.NUMERIC(12, 2), nullable=False))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column=Column(pg.TIMESTAMP(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)))
+    status: StatusType = Field(default=StatusType.ACTIVE, sa_column=Column(pg.VARCHAR(10), nullable=False, default=StatusType.ACTIVE))
 
 class TransactionType(str, Enum):
     DEPOSIT = "deposit"
