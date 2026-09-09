@@ -52,7 +52,7 @@ class AccountModel(SQLModel, table= True):
                 index=True,
             )
         )
-    user_id: uuid.UUID = Field(foreign_key="users.user_id",nullable=False, unique=False, index=True)
+    user_id: uuid.UUID = Field(foreign_key="users.user_id",nullable=False, unique=True, index=True)
     balance: Decimal = Field(default=Decimal("0.00"), sa_column=Column(pg.NUMERIC(12, 2), nullable=False))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column=Column(pg.TIMESTAMP(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)))
     status: StatusType = Field(default=StatusType.ACTIVE, sa_column=Column(pg.VARCHAR(10), nullable=False, default=StatusType.ACTIVE))
