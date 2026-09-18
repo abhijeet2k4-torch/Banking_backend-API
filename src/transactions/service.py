@@ -7,11 +7,6 @@ from src.db.models import TransactionModel as TransactionTable
 from src.db.models import AccountModel as AccountTable, TransactionType
 
 class TransactionService:
-    async def get_current_user_transactions(self, user_id: UUID, session: AsyncSession):
-        account = await self.get_account_by_id(user_id=user_id, session=session)
-        transactions = await session.exec(select(TransactionTable).where(or_(TransactionTable.sender_account_number == account.account_number, TransactionTable.receiver_account_number == account.account_number)).order_by(desc(TransactionTable.created_at)))
-        return transactions.all()
-
     async def get_transaction_by_id(self, transaction_id: UUID, session: AsyncSession):
         transaction = await session.exec(select(TransactionTable).where(TransactionTable.transaction_id == transaction_id))
         transaction = transaction.first()
@@ -19,9 +14,12 @@ class TransactionService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found.")
         return transaction
 
-    async def get_transaction_by_user_id(self, user_id: UUID, session: AsyncSession):
+    async def get_transaction_by_user_id(self, user_id: UUID, transaction_type: TransactionType | None, session: AsyncSession):
         account = await self.get_account_by_id(user_id=user_id, session=session)
-        transactions = await session.exec(select(TransactionTable).where(or_(TransactionTable.sender_account_number == account.account_number, TransactionTable.receiver_account_number == account.account_number)).order_by(desc(TransactionTable.created_at)))
+        query = select(TransactionTable).where(or_(TransactionTable.sender_account_number == account.account_number, TransactionTable.receiver_account_number == account.account_number)).order_by(desc(TransactionTable.created_at))
+        if transaction_type:
+                query = query.where(TransactionTable.transaction_type == transaction_type)
+        transactions = await session.exec(query)
         return transactions.all()
 
     async def create_withdrawal(self, user_id: UUID, transaction_amount: Decimal, session: AsyncSession):
