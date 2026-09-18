@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from src.db.main import init_db
 from src.accounts.routes import router as accounts_router
 from src.users.routes import router as users_router
-
+from src.transactions.routes import router as transactions_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,3 +21,4 @@ app = FastAPI(
 )
 app.include_router(users_router, prefix="/users", tags=['users'])
 app.include_router(accounts_router, prefix="/accounts", tags=['accounts'])
+app.include_router(transactions_router, prefix="/transactions", tags=['transactions'])
