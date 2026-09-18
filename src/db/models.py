@@ -61,6 +61,7 @@ class TransactionType(str, Enum):
     DEPOSIT = "deposit"
     WITHDRAWAL = "withdrawal"
     TRANSFER = "transfer"
+    SENT = "sent"
 
 class TransactionModel(SQLModel, table= True):
     __tablename__= 'transactions'
@@ -72,8 +73,8 @@ class TransactionModel(SQLModel, table= True):
             default=uuid.uuid4
         )
     )
-    sender_id: uuid.UUID | None = Field(default=None, foreign_key="accounts.account_id", nullable=True)
-    receiver_id: uuid.UUID | None = Field(default=None, foreign_key="accounts.account_id", nullable=True)
+    sender_account_number: str | None = Field(default=None, foreign_key="accounts.account_number", nullable=True)
+    receiver_account_number: str | None = Field(default=None, foreign_key="accounts.account_number", nullable=True)
     transaction_type: TransactionType = Field(sa_column=Column(pg.VARCHAR(10), nullable=False))
     transaction_amount: Decimal = Field(sa_column=Column(pg.NUMERIC(12, 2), nullable=False))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column=Column(pg.TIMESTAMP(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)))
